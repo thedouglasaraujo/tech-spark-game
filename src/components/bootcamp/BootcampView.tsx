@@ -29,10 +29,9 @@ interface Module {
 interface BootcampViewProps {
   bootcampId: string;
   onBack: () => void;
-  onModuleSelect?: (moduleId: string, moduleName: string) => void;
 }
 
-export function BootcampView({ bootcampId, onBack, onModuleSelect }: BootcampViewProps) {
+export function BootcampView({ bootcampId, onBack }: BootcampViewProps) {
   const [completedModules, setCompletedModules] = useState<string[]>([]);
 
   // Mock data - in a real app, this would come from an API
@@ -103,10 +102,8 @@ export function BootcampView({ bootcampId, onBack, onModuleSelect }: BootcampVie
   const completedCount = bootcamp.modules.filter(m => m.completed).length;
 
   const handleModuleStart = (moduleId: string) => {
-    const module = bootcamp.modules.find(m => m.id === moduleId);
-    if (module && onModuleSelect) {
-      onModuleSelect(moduleId, module.title);
-    }
+    // In a real app, this would navigate to the module content
+    console.log(`Starting module: ${moduleId}`);
   };
 
   return (
