@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,11 @@ interface OnboardingData {
   neurodivergence: string;
   preferences: string[];
   learningStyle: string;
+  resume?: File;
+  skills?: {
+    hard: string[];
+    soft: string[];
+  };
 }
 
 interface OnboardingFormProps {
@@ -21,6 +27,9 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
   const [neurodivergence, setNeurodivergence] = useState("");
   const [preferences, setPreferences] = useState<string[]>([]);
   const [learningStyle, setLearningStyle] = useState("");
+  const [resume, setResume] = useState<File | null>(null);
+  const [skills, setSkills] = useState<{hard: string[], soft: string[]} | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { toast } = useToast();
 
   const handlePreferenceChange = (preference: string, checked: boolean) => {
@@ -29,6 +38,33 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
     } else {
       setPreferences(preferences.filter(p => p !== preference));
     }
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setResume(file);
+      setIsAnalyzing(true);
+      
+      // Simular análise por IA (aqui seria integrado com serviço real)
+      setTimeout(() => {
+        const mockSkills = {
+          hard: ["JavaScript", "React", "Node.js", "HTML/CSS", "Git"],
+          soft: ["Comunicação", "Trabalho em equipe", "Resolução de problemas", "Adaptabilidade"]
+        };
+        setSkills(mockSkills);
+        setIsAnalyzing(false);
+        toast({
+          title: "Currículo analisado! ✅",
+          description: "Identificamos suas habilidades principais.",
+        });
+      }, 2000);
+    }
+  };
+
+  const handleChooseFile = () => {
+    const fileInput = document.getElementById('resume-upload') as HTMLInputElement;
+    fileInput?.click();
   };
 
   const handleSubmit = () => {
@@ -45,6 +81,8 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
       neurodivergence,
       preferences,
       learningStyle,
+      resume: resume || undefined,
+      skills: skills || undefined,
     });
 
     toast({
@@ -86,7 +124,7 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
         {/* Progress indicator */}
         <div className="flex justify-center mb-8">
           <div className="flex space-x-2">
-            {[1, 2, 3].map((s) => (
+            {[1, 2, 3, 4].map((s) => (
               <div
                 key={s}
                 className={`w-3 h-3 rounded-full transition-smooth ${
@@ -226,12 +264,113 @@ export function OnboardingForm({ onComplete }: OnboardingFormProps) {
                     Voltar
                   </Button>
                   <Button 
-                    onClick={handleSubmit} 
+                    onClick={() => setStep(4)} 
                     variant="calm"
                     className="flex-1"
                     disabled={!learningStyle}
                   >
-                    Começar minha jornada! 🎉
+                    Continuar
+                  </Button>
+                </div>
+              </CardContent>
+            </>
+          )}
+
+          {step === 4 && (
+            <>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl text-foreground">
+                  Envie seu currículo 📄
+                </CardTitle>
+                <CardDescription className="text-lg">
+                  Vamos analisar suas habilidades para personalizar ainda mais sua experiência
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="p-6 bg-muted rounded-lg border-2 border-dashed border-border text-center">
+                    <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    
+                    {!resume ? (
+                      <>
+                        <p className="text-sm mb-2">
+                          Envie seu currículo para análise personalizada
+                        </p>
+                        <p className="text-xs text-muted-foreground mb-4">
+                          Máximo 10MB • Apenas arquivos PDF • Análise por IA
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm mb-2 text-primary font-medium">
+                          ✅ {resume.name}
+                        </p>
+                        {isAnalyzing && (
+                          <p className="text-xs text-muted-foreground mb-4">
+                            🔄 Analisando currículo...
+                          </p>
+                        )}
+                        {skills && !isAnalyzing && (
+                          <div className="mt-4 space-y-3">
+                            <div>
+                              <p className="text-xs font-medium mb-2">Hard Skills:</p>
+                              <div className="flex flex-wrap gap-1">
+                                {skills.hard.map((skill) => (
+                                  <span key={skill} className="px-2 py-1 bg-primary/10 text-primary text-xs rounded">
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium mb-2">Soft Skills:</p>
+                              <div className="flex flex-wrap gap-1">
+                                {skills.soft.map((skill) => (
+                                  <span key={skill} className="px-2 py-1 bg-secondary/10 text-secondary-foreground text-xs rounded">
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    <input
+                      id="resume-upload"
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      aria-label="Escolher arquivo PDF"
+                    />
+
+                    <Button
+                      onClick={handleChooseFile}
+                      variant="outline"
+                      className="w-full"
+                      disabled={isAnalyzing}
+                    >
+                      {resume ? "Trocar arquivo" : "Escolher arquivo"}
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="flex space-x-4">
+                  <Button 
+                    onClick={() => setStep(3)} 
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Voltar
+                  </Button>
+                  <Button 
+                    onClick={handleSubmit} 
+                    variant="calm"
+                    className="flex-1"
+                  >
+                    {resume ? "Começar minha jornada! 🎉" : "Pular e continuar"}
                   </Button>
                 </div>
               </CardContent>

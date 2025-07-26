@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { BootcampCard } from "./BootcampCard";
 import { Search, Filter, Trophy, BookOpen, Target } from "lucide-react";
 import heroImage from "@/assets/hero-neurodivergent.jpg";
@@ -12,6 +13,11 @@ interface DashboardProps {
     neurodivergence: string;
     preferences: string[];
     learningStyle: string;
+    resume?: File;
+    skills?: {
+      hard: string[];
+      soft: string[];
+    };
   };
   onBootcampSelect: (bootcampId: string) => void;
 }
@@ -140,19 +146,50 @@ export function Dashboard({ userProfile, onBootcampSelect }: DashboardProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="gentle">
-                Estilo: {userProfile.learningStyle}
-              </Badge>
-              {userProfile.preferences.slice(0, 3).map((pref) => (
-                <Badge key={pref} variant="outline">
-                  {pref}
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="gentle">
+                  Estilo: {userProfile.learningStyle}
                 </Badge>
-              ))}
-              {userProfile.preferences.length > 3 && (
-                <Badge variant="outline">
-                  +{userProfile.preferences.length - 3} mais
-                </Badge>
+                {userProfile.preferences.slice(0, 3).map((pref) => (
+                  <Badge key={pref} variant="outline">
+                    {pref}
+                  </Badge>
+                ))}
+                {userProfile.preferences.length > 3 && (
+                  <Badge variant="outline">
+                    +{userProfile.preferences.length - 3} mais
+                  </Badge>
+                )}
+              </div>
+
+              {userProfile.skills && (
+                <div className="space-y-3 border-t border-border pt-4">
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+                      Hard Skills (extraídas do seu currículo)
+                    </Label>
+                    <div className="flex flex-wrap gap-1">
+                      {userProfile.skills.hard.map((skill) => (
+                        <Badge key={skill} variant="default" className="text-xs">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+                      Soft Skills (extraídas do seu currículo)
+                    </Label>
+                    <div className="flex flex-wrap gap-1">
+                      {userProfile.skills.soft.map((skill) => (
+                        <Badge key={skill} variant="secondary" className="text-xs">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </CardContent>
