@@ -1,14 +1,59 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { OnboardingForm } from "@/components/onboarding/OnboardingForm";
+import { Dashboard } from "@/components/dashboard/Dashboard";
+import { BootcampView } from "@/components/bootcamp/BootcampView";
+
+interface UserProfile {
+  neurodivergence: string;
+  preferences: string[];
+  learningStyle: string;
+}
+
+type AppState = "onboarding" | "dashboard" | "bootcamp";
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const [appState, setAppState] = useState<AppState>("onboarding");
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [selectedBootcamp, setSelectedBootcamp] = useState<string | null>(null);
+
+  const handleOnboardingComplete = (profile: UserProfile) => {
+    setUserProfile(profile);
+    setAppState("dashboard");
+  };
+
+  const handleBootcampSelect = (bootcampId: string) => {
+    setSelectedBootcamp(bootcampId);
+    setAppState("bootcamp");
+  };
+
+  const handleBackToDashboard = () => {
+    setAppState("dashboard");
+    setSelectedBootcamp(null);
+  };
+
+  if (appState === "onboarding") {
+    return <OnboardingForm onComplete={handleOnboardingComplete} />;
+  }
+
+  if (appState === "dashboard" && userProfile) {
+    return (
+      <Dashboard
+        userProfile={userProfile}
+        onBootcampSelect={handleBootcampSelect}
+      />
+    );
+  }
+
+  if (appState === "bootcamp" && selectedBootcamp) {
+    return (
+      <BootcampView
+        bootcampId={selectedBootcamp}
+        onBack={handleBackToDashboard}
+      />
+    );
+  }
+
+  return null;
 };
 
 export default Index;
